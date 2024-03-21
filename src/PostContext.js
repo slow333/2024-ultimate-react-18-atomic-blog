@@ -1,8 +1,5 @@
-// noinspection JSCheckFunctionSignatures
-// noinspection JSCheckFunctionSignatures
-
-import {createContext, useContext, useEffect, useMemo, useReducer} from "react";
-import {faker} from "@faker-js/faker";
+import { createContext, useContext, useMemo, useState } from "react";
+import { faker } from "@faker-js/faker";
 
 function createRandomPost() {
   return {
@@ -11,76 +8,54 @@ function createRandomPost() {
   };
 }
 
-const initialState = {
-  posts: [], query: '', isFakeDark: false,
-}
-
+// 1) CREATE A CONTEXT
 const PostContext = createContext();
 
-function reducer(state, action) {
-  switch (action.type) {
-    case 'getPosts':
-      return {...state, posts: action.payload}
-    case 'getQuery':
-      return {...state, query: action.payload}
-    case 'addPost':
-      return {...state, posts: [...state.posts, action.payload]}
-    case 'clearPosts' :
-      return {...state, posts: []}
-    case 'toggleFakeDark':
-      return {...state, isFakeDark: !state.isFakeDark}
-    default:
-      throw new Error("Type is not defined !!")
-  }
-}
-
-function PostsProvider({children}) {
-
-  const [state, dispatch] = useReducer(reducer, initialState);
-  const {posts, query, isFakeDark} = state;
-
-  useEffect(() => {
-    dispatch({
-      type: 'getPosts',
-      payload: Array.from({length: 30}, () => createRandomPost())
-    })
-  }, []);
-
-  const searchedPosts = query.length > 0
-       ? posts.filter((post) =>
-            `${post.title} ${post.body}`
-                 .toLowerCase()
-                 .includes(query.toLowerCase())
-       )
-       : posts;
-
-  useEffect(() => {
-         document.documentElement.classList.toggle("fake-dark-mode");
-       }, [isFakeDark]
+function PostProvider({ children }) {
+  const [posts, setPosts] = useState(() =>
+    Array.from({ length: 30 }, () => createRandomPost())
   );
-  const handleAddPost = (post) => dispatch({type: 'addPost', payload: post})
-  const handleClearPosts = () => dispatch({type: 'clearPosts'})
-  const handleQuery = (query) => dispatch({type: 'getQuery', payload: query})
-  const handleToggleFakeDark = () => dispatch({type: 'toggleFakeDark'})
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Derived state. These are the posts that will actually be displayed
+  const searchedPosts =
+    searchQuery.length > 0
+      ? posts.filter((post) =>
+          `${post.title} ${post.body}`
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase())
+        )
+      : posts;
+
+  function handleAddPost(post) {
+    setPosts((posts) => [post, ...posts]);
+  }
+
+  function handleClearPosts() {
+    setPosts([]);
+  }
 
   const value = useMemo(() => {
     return {
-      posts: searchedPosts, query, isFakeDark, dispatch,
-      handleAddPost, handleClearPosts, handleQuery, handleToggleFakeDark
-    }
-  })
+      posts: searchedPosts,
+      onAddPost: handleAddPost,
+      onClearPosts: handleClearPosts,
+      searchQuery,
+      setSearchQuery,
+    };
+  }, [searchedPosts, searchQuery]);
 
   return (
-       <PostContext.Provider value={value}>
-         {children}
-       </PostContext.Provider>
+    // 2) PROVIDE VALUE TO CHILD COMPONENTS
+    <PostContext.Provider value={value}>{children}</PostContext.Provider>
   );
 }
 
-function usePost() {
+function usePosts() {
   const context = useContext(PostContext);
-  if (context === undefined) throw new Error('Context 밖에서 정의됐습니다.')
+  if (context === undefined)
+    throw new Error("PostContext was used outside of the PostProvider");
   return context;
 }
 
-export {PostsProvider, usePost};
+export { PostProvider, usePosts };

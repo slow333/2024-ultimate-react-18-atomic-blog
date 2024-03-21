@@ -1,5 +1,5 @@
-import {createContext, useContext, useState} from "react";
-import {PostsProvider, usePost} from './PostContext'
+import {createContext, memo, useContext, useState} from "react";
+import {PostProvider, usePosts} from './PostContext'
 import {faker} from "@faker-js/faker";
 import Test from "./Test";
 
@@ -12,7 +12,7 @@ function createRandomPost() {
 
 function App() {
   return (
-       <PostsProvider>
+       <PostProvider>
          <section>
            <Button/>
            <Header/>
@@ -20,12 +20,12 @@ function App() {
            <Archive/>
            <Footer/>
          </section>
-       </PostsProvider>
+       </PostProvider>
   );
 }
 
 function Button() {
-  const {handleToggleFakeDark, isFakeDark} = usePost();
+  const {handleToggleFakeDark, isFakeDark} = usePosts();
   return (
        <button
             onClick={handleToggleFakeDark}
@@ -37,7 +37,7 @@ function Button() {
 }
 
 function Header() {
-  const {handleClearPosts, posts} = usePost();
+  const {handleClearPosts, posts} = usePosts();
   return (
        <header>
          <h1><span>⚛️</span>The Atomic Blog </h1>
@@ -51,24 +51,24 @@ function Header() {
 }
 
 function SearchPosts() {
-  const {query, handleQuery} = usePost();
+  const {query, handleQuery} = usePosts();
   return (
        <input value={query} placeholder="Search posts..."
               onChange={(e) => handleQuery(e.target.value)}/>
   );
 }
 
-function Main() {
+const Main = memo(function Main() {
   return (
        <main>
          <FormAddPost/>
          <section><List/></section>
        </main>
   );
-}
+})
 
 function FormAddPost() {
-  const {handleAddPost} = usePost();
+  const {handleAddPost} = usePosts();
 
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
@@ -93,7 +93,7 @@ function FormAddPost() {
 }
 
 function List() {
-  const {posts} = usePost();
+  const {posts} = usePosts();
   return (<>
      <ul>
          {posts.map((post, i) => <li key={i}>
@@ -144,7 +144,7 @@ function ButtonArchive() {
 
 function PostArchives() {
   const {posts} = useContext(ArchiveContext);
-  const {handleAddPost} = usePost();
+  const {handleAddPost} = usePosts();
 
   return (
        <ul>
