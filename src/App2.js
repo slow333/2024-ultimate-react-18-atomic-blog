@@ -1,3 +1,5 @@
+// noinspection DuplicatedCode
+
 import {createContext, useContext, useEffect, useState} from "react";
 import {faker} from "@faker-js/faker";
 
@@ -36,31 +38,30 @@ function App() {
     setPosts([]);
   }
 
-  // Whenever `isFakeDark` changes, we toggle the `fake-dark-mode`
-  // class on the HTML element (see in "Elements" dev tool).
   useEffect(() => {
-    document.documentElement.classList.toggle("fake-dark-mode");
-    },[isFakeDark]
+         document.documentElement.classList.toggle("fake-dark-mode");
+       }, [isFakeDark]
   );
 
   return (
-     <PostContext.Provider value = {{
-       posts: searchedPosts,
-       onClearPosts: handleClearPosts,
-       onAddPost: handleAddPost,
-       searchQuery, setSearchQuery,
-       setIsFakeDark,isFakeDark
-     } } >
-       <section>
-         <Button />
-         <Header />
-         <Main />
-         <Archive />
-         <Footer />
-       </section>
-     </PostContext.Provider>
+       <PostContext.Provider value={{
+         posts: searchedPosts,
+         onClearPosts: handleClearPosts,
+         onAddPost: handleAddPost,
+         searchQuery, setSearchQuery,
+         setIsFakeDark, isFakeDark
+       }}>
+         <section>
+           <Button/>
+           <Header/>
+           <Main/>
+           <Archive/>
+           <Footer/>
+         </section>
+       </PostContext.Provider>
   );
 }
+
 function Button() {
   const {setIsFakeDark, isFakeDark} = useContext(PostContext)
   return (
@@ -80,7 +81,7 @@ function Header() {
          <h1><span>⚛️</span>The Atomic Blog </h1>
          <div>
            <Results/>
-           <SearchPosts />
+           <SearchPosts/>
            <button onClick={onClearPosts}>Clear posts</button>
          </div>
        </header>
@@ -90,8 +91,8 @@ function Header() {
 function SearchPosts() {
   const {searchQuery, setSearchQuery} = useContext(PostContext)
   return (
-     <input value={searchQuery} placeholder="Search posts..."
-          onChange={(e) => setSearchQuery(e.target.value)}   />
+       <input value={searchQuery} placeholder="Search posts..."
+              onChange={(e) => setSearchQuery(e.target.value)}/>
   );
 }
 
@@ -101,12 +102,14 @@ function Results() {
 }
 
 function Main() {
-  return ( <main>  <FormAddPost/>   <Posts />   </main>
+  return (
+       <main>
+         <FormAddPost/>
+         <section>
+           <List/>
+         </section>
+       </main>
   );
-}
-
-function Posts() {
-  return ( <section> <List />  </section> );
 }
 
 function FormAddPost() {
@@ -124,24 +127,24 @@ function FormAddPost() {
   };
 
   return (
-     <form onSubmit={handleSubmit}>
-       <input value={title} placeholder="Post title"
-            onChange={(e) => setTitle(e.target.value)}   />
-       <textarea value={body} placeholder="Post body"
-            onChange={(e) => setBody(e.target.value)}     />
-       <button>Add post</button>
-     </form>
+       <form onSubmit={handleSubmit}>
+         <input value={title} placeholder="Post title"
+                onChange={(e) => setTitle(e.target.value)}/>
+         <textarea value={body} placeholder="Post body"
+                   onChange={(e) => setBody(e.target.value)}/>
+         <button>Add post</button>
+       </form>
   );
 }
 
 function List() {
-  const { posts } = useContext(PostContext)
+  const {posts} = useContext(PostContext)
   return (
        <ul>
          {posts.map((post, i) => <li key={i}>
                 <h3>{post.title}</h3>
                 <p>{post.body}</p>
-            </li>
+              </li>
          )}
        </ul>
   );
@@ -170,12 +173,13 @@ function Archive() {
        </ArchiveContext.Provider>
   );
 }
+
 function ButtonArchive() {
   const {setShowArchive, showArchive} = useContext(ArchiveContext)
   return (
-     <button onClick={() => setShowArchive((s) => !s)}>
-       {showArchive ? "Hide archive posts" : "Show archive posts"}
-     </button>
+       <button onClick={() => setShowArchive((s) => !s)}>
+         {showArchive ? "Hide archive posts" : "Show archive posts"}
+       </button>
   )
 }
 
@@ -185,16 +189,16 @@ function PostArchives() {
 
   return (
        <ul>
-          {posts.map((post, i) => (
-               <li key={i}>
-                 <p>
-                   <strong>{post.title}:</strong> {post.body}
-                 </p>
-                 <button onClick={() => onAddPost(post)}>Add as new post</button>
-               </li>
-          ))}
-        </ul>
-   )
+         {posts.map((post, i) => (
+              <li key={i}>
+                <p>
+                  <strong>{post.title}:</strong> {post.body}
+                </p>
+                <button onClick={() => onAddPost(post)}>Add as new post</button>
+              </li>
+         ))}
+       </ul>
+  )
 }
 
 function Footer() {

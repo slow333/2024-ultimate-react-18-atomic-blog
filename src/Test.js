@@ -1,26 +1,30 @@
-import { useState } from "react";
+import React, {useState} from 'react';
 
-function SlowComponent() {
-  // If this is too slow on your maching, reduce the `length`
-  const words = Array.from({ length: 100_000 }, () => "WORD");
-  return (
+function SlowComponents() {
+  const els = Array.from({length: 100_000}, (v, i) => {
+    return `word_${i}`
+  })
+  return (<div>
     <ul>
-      {words.map((word, i) => (
-        <li key={i}>
-          {i}: {word}
-        </li>
-      ))}
+      {els.map(w => <li>{w}</li>)}
     </ul>
-  );
+  </div>)
 }
 
-export default function Test() {
-  const [count, setCount] = useState(0);
-  return (
-    <div>
-      <h1>Slow counter?!?</h1>
-      <button onClick={() => setCount((c) => c + 1)}>Increase: {count}</button>
-      <SlowComponent />
-    </div>
-  );
+function Counter({children}) {
+  const [c, setC] = useState(0);
+
+  return (<div>
+    <h1>Slow counter </h1>
+    <button onClick={() => setC(c => c + 1)}>+Count {c}</button>
+    {children}
+  </div>);
 }
+
+const Test = () => {
+  return <Counter>
+    <SlowComponents/>
+  </Counter>
+}
+
+export default Test;
